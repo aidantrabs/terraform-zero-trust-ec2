@@ -47,18 +47,23 @@ resource "aws_iam_instance_profile" "ec2_instance_profile" {
 }
 
 resource "aws_security_group" "ec2_security_group" {
+    name        = "${var.environment}-ec2-security-group"
     description = "Security group for zero-trust EC2"
     vpc_id      = var.vpc_id
 }
 
 resource "aws_vpc_security_group_egress_rule" "ec2_security_group_egress" {
-    name              = "${var.environment}-ec2-security-group-egress"
     security_group_id = aws_security_group.ec2_security_group.id
    
-    cidr_ipv4         = "10.0.0.0/16";
+    cidr_ipv4         = var.vpc_cidr
     from_port         = 443 
     ip_protocol       = "tcp"
     to_port           = 443
+
+    tags = {
+        Name        = "${var.environment}-ec2-instance"
+        Environment = "${var.environment}"
+    }
 }
 
 resource "aws_instance" "ec2_instance" {
